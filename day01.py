@@ -41,7 +41,7 @@ def multiple3_2020_sumup(data: List[int]) -> int:
 assert multiple3_2020_sumup(DATA) == 241861950
 
 
-with open('day01/data.txt') as f:
+with open('data/day01.txt') as f:
     competition_data = f.readlines()
     competition_data = list(map(int, competition_data))
     print(multiple_2020_sumup(competition_data))
