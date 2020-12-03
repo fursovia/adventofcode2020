@@ -1,4 +1,6 @@
 from typing import NamedTuple, Tuple, List
+import operator
+from functools import reduce
 
 
 FOREST = """..##.......
@@ -50,18 +52,31 @@ class Forest(NamedTuple):
         return cls(num_rows=num_rows, num_cols=num_cols, trees=trees, trajectory_angle=trajectory_angle)
 
 
-forest = Forest.from_rows(FOREST.split("\n"), ANGLE)
-trajectory = forest.get_trajectory()
-num_encountered = sum([forest.is_encountered(*coord) for coord in trajectory])
-assert num_encountered == 7
+def get_num_encountered(rows: List[str], angle: Tuple[int, int]) -> int:
+    forest = Forest.from_rows(rows, angle)
+    trajectory = forest.get_trajectory()
+    encountered = [forest.is_encountered(*coord) for coord in trajectory]
+    return sum(encountered)
+
+
+assert get_num_encountered(FOREST.split("\n"), ANGLE) == 7
+
+ANGLES = [(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)]
+
+nums = []
+for angle in ANGLES:
+    nums.append(get_num_encountered(FOREST.split("\n"), angle))
+
+assert reduce(operator.mul, nums, 1) == 336
 
 
 with open("data/day03.txt") as f:
     rows = f.read().split("\n")
-    forest = Forest.from_rows(rows, ANGLE)
-    trajectory = forest.get_trajectory()
-    encountered = [forest.is_encountered(*coord) for coord in trajectory]
-    num_encountered = sum(encountered)
+    num_encountered = get_num_encountered(rows, ANGLE)
     print(num_encountered)
 
+    nums = []
+    for angle in ANGLES:
+        nums.append(get_num_encountered(rows, angle))
 
+    print(reduce(operator.mul, nums, 1))
