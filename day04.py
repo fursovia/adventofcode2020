@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+import re
 
 DATA = """ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
 byr:1937 iyr:2017 cid:147 hgt:183cm
@@ -21,7 +22,7 @@ class Passport:
     byr: Optional[int] = None
     iyr: Optional[int] = None
     eyr: Optional[int] = None
-    hgt: Optional[int] = None
+    hgt: Optional[str] = None
     hcl: Optional[str] = None
     ecl: Optional[str] = None
     pid: Optional[int] = None
@@ -44,11 +45,51 @@ class Passport:
                 return False
         return True
 
+    def is_valid2(self) -> bool:
+        if self.is_valid():
+
+            if not 1920 <= int(self.byr) <= 2002:
+                return False
+
+            if not 2010 <= int(self.iyr) <= 2020:
+                return False
+
+            if not 2020 <= int(self.eyr) <= 2030:
+                return False
+
+            try:
+                height, unit = int(self.hgt[:-2]), self.hgt[-2:]
+                if unit == "cm":
+                    if not 150 <= height <= 193:
+                        return False
+                elif unit == "in":
+                    if not 59 <= height <= 76:
+                        return False
+                else:
+                    raise False
+            except ValueError:
+                return False
+
+            if self.hcl[0] != "#" or re.findall(r"[^a-f0-9]", self.hcl[1:]):
+                return False
+
+            if self.ecl not in {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"}:
+                return False
+
+            if len(str(self.pid)) != 9:
+                return False
+
+            return True
+
+        else:
+            return False
+
     def __str__(self):
 
         return "\n".join(
             [
                 f"Valid: {self.is_valid()}",
+                f"Valid2: {self.is_valid2()}",
                 f"Birth Year: {self.byr}",
                 f"Issue Year: {self.iyr}",
                 f"Expiration Year: {self.eyr}",
@@ -70,3 +111,6 @@ with open("data/day04.txt") as f:
     passports = [Passport.parse(line) for line in data.split("\n\n")]
     num_valid = sum(passport.is_valid() for passport in passports)
     print(num_valid)
+
+    num_valid2 = sum(passport.is_valid2() for passport in passports)
+    print(num_valid2)
