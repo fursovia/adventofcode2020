@@ -29,7 +29,7 @@ class Passport:
     cid: Optional[int] = None
 
     @classmethod
-    def parse(cls, line: str) -> "Scanner":
+    def parse(cls, line: str) -> "Passport":
         line = line.replace("\n", " ").strip()
         elements = line.split()
         passport = {}
