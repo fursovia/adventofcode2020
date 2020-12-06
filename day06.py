@@ -1,6 +1,5 @@
-import string
-from collections import namedtuple, Counter, defaultdict
-from typing import Dict, List, DefaultDict
+from collections import Counter, defaultdict
+from typing import List, DefaultDict
 
 DATA = """abc
 
@@ -19,9 +18,6 @@ a
 b"""
 
 
-ALPHABET = list(string.ascii_lowercase)
-
-# Answers = namedtuple("Answers", fields=ALPHABET, defaults=("no",) * len(ALPHABET))
 Answers = DefaultDict[str, str]
 
 
