@@ -74,7 +74,6 @@ adj_list = get_adj_list(DATA, include_numbers=True)
 num_bags = get_num_bags(adj_list, "shiny gold")
 assert num_bags == 32
 
-
 adj_list = get_adj_list(DATA2, include_numbers=True)
 num_bags = get_num_bags(adj_list, "shiny gold")
 assert num_bags == 126
