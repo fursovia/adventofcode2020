@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
+from functools import lru_cache
 
 
 DATA = """35
@@ -24,18 +25,24 @@ DATA = """35
 576"""
 
 
+@lru_cache(maxsize=None)
+def sumup_numbers(*values: int) -> int:
+    return sum(values)
+
+
 @dataclass
 class XMAS:
     preamble: List[int]
     offset: int = 0
 
-    def get_possible_sums(self, sums: Optional[List[int]] = None) -> List[int]:
-        sums = sums or []
+    def get_possible_sums(self) -> List[int]:
+        sums = []
 
         for i in range(self.offset, len(self.preamble)):
             for j in range(self.offset + 1, len(self.preamble)):
                 if j > i:
-                    sums.append(self.preamble[i] + self.preamble[j])
+                    # TODO: instead of lru_cache I should just skip (i, j) pairs I've already calculated
+                    sums.append(sumup_numbers(self.preamble[i], self.preamble[j]))
 
         self.offset += 1
         return sums
@@ -44,8 +51,11 @@ class XMAS:
         self.preamble += [value]
 
 
-def get_invalid_sum(raw: str, preamble_length: int) -> int:
-    numbers = list(map(int, raw.split("\n")))
+def parse_data(raw: str) -> List[int]:
+    return list(map(int, raw.split("\n")))
+
+
+def get_invalid_sum(numbers: List[int], preamble_length: int) -> int:
     xmas = XMAS(numbers[:preamble_length])
 
     for number in numbers[preamble_length:]:
@@ -58,11 +68,33 @@ def get_invalid_sum(raw: str, preamble_length: int) -> int:
     raise ValueError
 
 
-invalid_sum = get_invalid_sum(DATA, 5)
+data = parse_data(DATA)
+invalid_sum = get_invalid_sum(data, 5)
 assert invalid_sum == 127
 
 
+def find_sumup_combination(values: List[int], sumup_value: int) -> List[int]:
+    batch_size = 2
+
+    while batch_size <= len(values):
+        for i in range(len(values)):
+            curr_values = values[i: i + batch_size]
+            if sumup_numbers(*curr_values) == sumup_value:
+                return curr_values
+
+        batch_size += 1
+
+    raise ValueError
+
+
+contiguous_range = find_sumup_combination(data[:data.index(invalid_sum)], invalid_sum)
+assert sumup_numbers(min(contiguous_range), max(contiguous_range)) == 62
+
+
 with open("data/day09.txt") as f:
-    data = f.read()
+    data = parse_data(f.read())
     invalid_sum = get_invalid_sum(data, 25)
     print(invalid_sum)
+
+    contiguous_range = find_sumup_combination(data[:data.index(invalid_sum)], invalid_sum)
+    print(sumup_numbers(min(contiguous_range), max(contiguous_range)))
