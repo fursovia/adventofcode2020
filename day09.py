@@ -47,7 +47,7 @@ class XMAS:
         self.offset += 1
         return sums
 
-    def update_and_check_preamble(self, value: int):
+    def update_preamble(self, value: int):
         self.preamble += [value]
 
 
@@ -63,7 +63,7 @@ def get_invalid_sum(numbers: List[int], preamble_length: int) -> int:
         if number not in possible_sums:
             return number
         else:
-            xmas.update_and_check_preamble(number)
+            xmas.update_preamble(number)
 
     raise ValueError
 
