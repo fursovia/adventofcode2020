@@ -26,6 +26,7 @@ class Navigation:
     actions: List[str]
     current_direction: Tuple[int, int] = (-1, 0)
     current_position: Tuple[int, int] = (0, 0)
+    waypoint: Tuple[int, int] = (-10, 1)
 
     def move(self):
         for action in self.actions:
@@ -40,6 +41,28 @@ class Navigation:
 
             to_step = tuple(di * value for di in direction)
             self.current_position = tuple(map(sum, zip(self.current_position, to_step)))
+
+    def move2(self):
+        for action in self.actions:
+            value = int(action[1:])
+            if action.startswith("F"):
+                to_step = tuple(di * value for di in self.waypoint)
+                self.current_position = tuple(map(sum, zip(self.current_position, to_step)))
+            else:
+                self.change_waypoint_position(action)
+
+    def change_waypoint_position(self, action: str):
+        value = int(action[1:])
+        if action.startswith("R"):
+            for _ in range(value // 90):
+                self.waypoint = -self.waypoint[1], self.waypoint[0]
+        elif action.startswith("L"):
+            for _ in range(value // 90):
+                self.waypoint = self.waypoint[1], -self.waypoint[0]
+        else:
+            direction = CARDINAL_MAPPING[action[0]]
+            to_step = tuple(di * value for di in direction)
+            self.waypoint = tuple(map(sum, zip(self.waypoint, to_step)))
 
     def change_direction(self, action: str):
         turn, degrees = action[0], int(action[1:])
@@ -60,10 +83,20 @@ navigation.move()
 assert navigation.get_distance() == 25
 
 
+navigation = Navigation(RAW.split("\n"))
+navigation.move2()
+assert navigation.get_distance() == 286
+
+
 with open("data/day12.txt") as f:
     data = f.read().split("\n")
 
 navigation = Navigation(data)
 navigation.move()
+distance = navigation.get_distance()
+print(distance)
+
+navigation = Navigation(data)
+navigation.move2()
 distance = navigation.get_distance()
 print(distance)
